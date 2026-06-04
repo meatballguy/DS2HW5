@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <chrono>
 #include <cstdio>
+#include <sstream>
+#include <limits>
 
 using namespace std;
 
@@ -146,7 +148,71 @@ void executeTask1(const string& fileNo) {
     cout << "Total Execution Time = " << (timeInternal + timeExternal) << " ms" << endl;
 }
 
+string formatFloat(float v) {
+    std::ostringstream oss;
+    oss << fixed << setprecision(2) << v;
+    string s = oss.str();
+    // trim trailing zeros and optional trailing dot
+    if (s.find('.') != string::npos) {
+        while (!s.empty() && s.back() == '0') s.pop_back();
+        if (!s.empty() && s.back() == '.') s.pop_back();
+    }
+    return s;
+}
+
+string readValidFileNo() {
+    string fileNo;
+    while (true) {
+        cout << "\nInput the file name: [0]Quit" << endl;
+        cin >> fileNo;
+        if (fileNo == "0") {
+            return fileNo;
+        }
+        string inputFileName = "pairs" + fileNo + ".bin";
+        ifstream testFile(inputFileName, ios::binary);
+        if (testFile) {
+            return fileNo;
+        }
+        cout << "paris" << fileNo << ".bin does not exist!!!" << endl;
+    }
+}
+
+void executeTask2(const string& fileNo) {
+    string orderFile = "order" + fileNo + ".bin";
+    ifstream in(orderFile, ios::binary);
+    if (!in) {
+        cout << "Cannot open " << orderFile << endl;
+        return;
+    }
+
+    cout << "\n<Primary index>: (key, offset)" << endl;
+
+    vector<pair<float, long long>> index; // (weight, record index)
+    Record rec;
+    bool first = true;
+    float lastWeight = 0.0f;
+    long long recordIndex = 0;
+
+    while (true) {
+        if (!in.read(reinterpret_cast<char*>(&rec), sizeof(Record))) break;
+        float w = rec.weight;
+        if (first || w != lastWeight) {
+            index.emplace_back(w, recordIndex);
+            lastWeight = w;
+            first = false;
+        }
+        ++recordIndex;
+    }
+
+    for (size_t i = 0; i < index.size(); ++i) {
+        cout << "[" << (i + 1) << "] (" << formatFloat(index[i].first) << ", " << index[i].second << ")" << endl;
+    }
+}
+
 int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
     string fileNo;
     while (true) {
         cout << "* Data Structures and Algorithms *" << endl;
@@ -158,18 +224,21 @@ int main() {
         cout << "##################################" << endl;
         cout << "Mission 1: External merge sort " << endl;
         cout << "##################################" << endl;
-        cout << "\nInput the file name: [0]Quit" << endl;
-        cin >> fileNo;
+        fileNo = readValidFileNo();
 
-        if (fileNo == "0") {
-            break;
+        if (fileNo != "0") {
+            executeTask1(fileNo);
+
+            cout << "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+            cout << "Mission 2: Build the primary index " << endl;
+            cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+            executeTask2(fileNo);
         }
 
-        executeTask1(fileNo);
-
-        cout << "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
-        cout << "Mission 2: Build the primary index " << endl;
-        cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
+        cout << "\n[0]Quit or [Any other key]continue?" << endl;
+        string cont;
+        cin >> cont;
+        if (cont == "0") break;
     }
     return 0;
 }
