@@ -22,7 +22,7 @@ struct Record {
 class Program {
 public:
     int run() {
-
+        int bufferSize = 300;   
         string fileNo;
         while (true) {
             cout << "\n* Data Structures and Algorithms *" << endl;
@@ -30,17 +30,22 @@ public:
             cout << "* 1. External merge sort on file *" << endl;
             cout << "* 2: Construct the primary index *" << endl;
             cout << "* 3: Range search to build index *" << endl;
-            cout << "* 4: Retrieve records from index *" << endl;
+            cout << "* 4: Get maximum spanning forest *" << endl;
             cout << "**********************************" << endl;
-            cout << "*** The buffer size is 300" << endl;
-            int bufferSize = 300;
-            cout << "Input a new buffer size in [300, 60000]: ";
-            cin >> bufferSize;
+            cout << "*** The buffer size is " << bufferSize << endl;
+            while (true) {
+                        cout << "Input a new buffer size in [300, 60000]: ";
+                        if (cin >> bufferSize) {
+                            if (bufferSize >= 300 && bufferSize <= 60000) break;
+                            cout << "\n### It is NOT in [300,60000] ###\n";
+                        } else {
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        }
+                        cout << "\n";
+                    }
             if (bufferSize < 300) bufferSize = 300;
             if (bufferSize > 60000) bufferSize = 60000;
-            
-            // To match the exact terminal output format
-            cout << bufferSize << endl;
 
             cout << "\n##################################" << endl;
             cout << "* 1. External merge sort on file *" << endl;
@@ -69,7 +74,7 @@ public:
                         cout << "\nInput a floating number in [0.01, 1]: ";
                         if (cin >> val1) {
                             if (val1 >= 0.01f && val1 <= 1.0f) break;
-                            cout << "\n### It is NOT in [0.01,1.00] ###\n";
+                            cout << "\n### It is NOT in [0.01,1] ###\n";
                         } else {
                             cin.clear();
                             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -79,7 +84,7 @@ public:
                         cout << "\nInput a floating number in [0.01, 1]: ";
                         if (cin >> val2) {
                             if (val2 >= 0.01f && val2 <= 1.0f) break;
-                            cout << "\n### It is NOT in [0.01,1.00] ###\n";
+                            cout << "\n### It is NOT in [0.01,1] ###\n";
                         } else {
                             cin.clear();
                             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -366,7 +371,7 @@ private:
 
         int count = 1;
         for (auto const& [putID, offsets] : secondaryIndex) {
-            cout << "[" << setw(4) << count++ << "]   " << setw(8) << putID << setw(12) << offsets.size() << endl;
+            cout << "[" << setw(4) << count++ << "]   " << setw(8) << putID << "\t" << setw(5) << offsets.size() << endl;
         }
 
         while (true) {
